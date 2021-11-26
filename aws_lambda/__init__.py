@@ -1,10 +1,13 @@
-import shutil
 import os
 import re
-from pathlib import Path
+import shutil
 import subprocess
+from pathlib import Path
+from typing import Optional
 
 from bentoml.utils.ruamel_yaml import YAML
+
+from utils.utils import Stage
 from utils import is_present
 
 
@@ -79,11 +82,11 @@ def generate_aws_compatible_string(*items, max_length=63):
     return name
 
 
-def generate_lambda_resource_names(name):
+def generate_lambda_resource_names(name: str, stage: Optional[str] = Stage.DEV):
     sam_template_name = generate_aws_compatible_string(f"{name}-template")
     deployment_stack_name = generate_aws_compatible_string(f"{name}-stack")
     # repo should be (?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*''
-    repo_name = generate_aws_compatible_string(f"{name}-repo").lower()
+    repo_name = generate_aws_compatible_string(f"inferencehub-images-{stage}").lower()
 
     return sam_template_name, deployment_stack_name, repo_name
 
@@ -94,15 +97,15 @@ def generate_docker_image_tag(registry_uri, bento_name, bento_version):
 
 
 def generate_aws_lambda_cloudformation_template_file(
-    deployment_name,
-    project_dir,
-    api_names,
-    bento_service_name,
-    docker_tag,
-    docker_file,
-    docker_context,
-    memory_size: int,
-    timeout: int,
+        deployment_name,
+        project_dir,
+        api_names,
+        bento_service_name,
+        docker_tag,
+        docker_file,
+        docker_context,
+        memory_size: int,
+        timeout: int,
 ):
     template_file_path = os.path.join(project_dir, "template.yaml")
     yaml = YAML()

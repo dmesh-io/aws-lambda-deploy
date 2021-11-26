@@ -1,17 +1,31 @@
-import boto3
 import os
-import argparse
+from pathlib import Path
+from typing import Optional
 
+import boto3
+import typer
 from botocore.exceptions import ClientError
 from rich.pretty import pprint
 
 from aws_lambda import generate_lambda_resource_names
+
 from utils import get_configuration_value
+from utils.utils import Stage
 
 
-def describe(deployment_name, config_file_path):
+def describe(
+        deployment_name: str,
+        config_file_path: Optional[Path] = None,
+        stage: Optional[Stage] = None
+):
+    if not config_file_path:
+        config_file_path = os.path.join(os.getcwd(), "lambda_config.json")
+
+    if not stage:
+        stage = Stage.DEV
+
     # get data about cf stack
-    _, stack_name, repo_name = generate_lambda_resource_names(deployment_name)
+    _, stack_name, repo_name = generate_lambda_resource_names(deployment_name, stage)
     lambda_config = get_configuration_value(config_file_path)
     cf_client = boto3.client("cloudformation", lambda_config["region"])
     try:
@@ -40,24 +54,10 @@ def describe(deployment_name, config_file_path):
     outputs = {o["OutputKey"]: o["OutputValue"] for o in outputs}
     info_json.update(outputs)
 
+    pprint(info_json)
+
     return info_json
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Describe the bundle deployed on lambda",
-        epilog="Check out https://github.com/bentoml/aws-lambda-deploy#readme to know more",
-    )
-    parser.add_argument(
-        "deployment_name", help="The name you want to use for your deployment"
-    )
-    parser.add_argument(
-        "config_json",
-        help="(optional) The config file for your deployment",
-        default=os.path.join(os.getcwd(), "lambda_config.json"),
-        nargs="?",
-    )
-    args = parser.parse_args()
-
-    info_json = describe(args.deployment_name, args.config_json)
-    pprint(info_json)
+    typer.run(describe)

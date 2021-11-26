@@ -1,23 +1,38 @@
+import enum
 import os
-import argparse
+from pathlib import Path
+from typing import Optional
 
+import typer as typer
 from bentoml.saved_bundle import load_bento_service_metadata
 
-from utils import (
-    get_configuration_value,
-    create_ecr_repository_if_not_exists,
-    console,
-)
 from aws_lambda import (
     generate_lambda_deployable,
     generate_lambda_resource_names,
     generate_aws_lambda_cloudformation_template_file,
     call_sam_command,
 )
+from utils import (
+    get_configuration_value,
+    create_ecr_repository_if_not_exists,
+    console
+)
+from utils.utils import Stage
 
 
-def deploy(bento_bundle_path, deployment_name, config_json):
-    bento_metadata = load_bento_service_metadata(bento_bundle_path)
+def deploy(
+        bento_bundle_path: Path,
+        deployment_name: str,
+        config_json: Optional[Path] = None,
+        stage: Optional[Stage] = None
+):
+    if not config_json:
+        config_json = os.path.join(os.getcwd(), "lambda_config.json")
+
+    if not stage:
+        stage = Stage.DEV
+
+    bento_metadata = load_bento_service_metadata(str(bento_bundle_path))
     lambda_config = get_configuration_value(config_json)
     deployable_path = os.path.join(
         os.path.curdir,
@@ -29,7 +44,7 @@ def deploy(bento_bundle_path, deployment_name, config_json):
         template_name,
         stack_name,
         repo_name,
-    ) = generate_lambda_resource_names(deployment_name)
+    ) = generate_lambda_resource_names(deployment_name, stage)
     console.print(f"Created AWS Lambda deployable [b][{deployable_path}][/b]")
 
     api_names = [api.name for api in bento_metadata.apis]
@@ -101,23 +116,8 @@ def deploy(bento_bundle_path, deployment_name, config_json):
         )
         # print(return_code, stdout, stderr)
 
+    print("### Deployment Complete! ###")
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Deploy the bentoml bundle to lambda.",
-        epilog="Check out https://github.com/bentoml/aws-lambda-deploy#readme to know more",
-    )
-    parser.add_argument("bento_bundle_path", help="Path to bentoml bundle")
-    parser.add_argument(
-        "deployment_name", help="The name you want to use for your deployment"
-    )
-    parser.add_argument(
-        "config_json",
-        help="(optional) The config file for your deployment",
-        default=os.path.join(os.getcwd(), "lambda_config.json"),
-        nargs="?",
-    )
-    args = parser.parse_args()
-
-    deploy(args.bento_bundle_path, args.deployment_name, args.config_json)
-    console.print("[bold green]Deployment Complete!")
+    typer.run(deploy)

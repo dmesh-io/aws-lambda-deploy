@@ -1,13 +1,13 @@
-import os
-import subprocess
-import json
 import base64
+import enum
+import json
+import os
 import shutil
+import subprocess
 
-import docker
 import boto3
+import docker
 from rich.console import Console
-
 
 # The Rich console to be used in the scripts for pretty printing
 console = Console(highlight=False)
@@ -67,8 +67,8 @@ def get_ecr_login_info(region, repository_id):
     token = ecr_client.get_authorization_token(registryIds=[repository_id])
     username, password = (
         base64.b64decode(token["authorizationData"][0]["authorizationToken"])
-        .decode("utf-8")
-        .split(":")
+            .decode("utf-8")
+            .split(":")
     )
     registry_url = token["authorizationData"][0]["proxyEndpoint"]
 
@@ -89,7 +89,7 @@ def create_ecr_repository_if_not_exists(region, repository_name):
 
 
 def build_docker_image(
-    context_path, image_tag, dockerfile="Dockerfile", additional_build_args=None
+        context_path, image_tag, dockerfile="Dockerfile", additional_build_args=None
 ):
     docker_client = docker.from_env()
     try:
@@ -104,7 +104,7 @@ def build_docker_image(
 
 
 def push_docker_image_to_repository(
-    repository, image_tag=None, username=None, password=None
+        repository, image_tag=None, username=None, password=None
 ):
     docker_client = docker.from_env()
     docker_push_kwags = {"repository": repository, "tag": image_tag}
@@ -137,9 +137,9 @@ def create_s3_bucket_if_not_exists(bucket_name, region):
                 )
             except ClientError as s3_error:
                 if (
-                    s3_error.response
-                    and s3_error.response["Error"]["Code"]
-                    == "InvalidLocationConstraint"
+                        s3_error.response
+                        and s3_error.response["Error"]["Code"]
+                        == "InvalidLocationConstraint"
                 ):
                     s3_client.create_bucket(Bucket=bucket_name)
                 else:
