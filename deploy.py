@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
-import typer as typer
+import typer
 from bentoml.saved_bundle import load_bento_service_metadata
 
 from aws_lambda import (
@@ -122,3 +122,8 @@ def deploy(
 
 if __name__ == "__main__":
     typer.run(deploy)
+    # deploy(
+    #     bento_bundle_path=Path("/Users/johannes/bentoml/repository/PytorchUnet/20211126164545_18AE7A"),
+    #     deployment_name="dep-test",
+    #     stage=Stage.DEV
+    # )
