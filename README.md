@@ -1,3 +1,10 @@
+# There are 4 commands we can use:
+- deploy
+- describe
+- update
+- delete
+
+
 # AWS Lambda deployment tool
 
 AWS Lambda is a great service for quickly deploy service to the cloud for immediate
