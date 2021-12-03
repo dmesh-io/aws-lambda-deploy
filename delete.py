@@ -7,7 +7,7 @@ import typer
 from botocore.exceptions import ClientError
 
 from aws_lambda import generate_lambda_resource_names
-from utils import get_configuration_value
+from utils import get_configuration_value, console
 
 
 def delete(
@@ -33,7 +33,7 @@ def delete(
         if e.response and e.response["Error"]["Code"] != "RepositoryNotFoundException":
             raise e
 
-    print("### Deletion Complete! ###")
+    console.print("[bold green]Deletion Complete!")
 
 
 if __name__ == "__main__":

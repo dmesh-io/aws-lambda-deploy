@@ -107,11 +107,11 @@ def push_docker_image_to_repository(
         repository, image_tag=None, username=None, password=None
 ):
     docker_client = docker.from_env()
-    docker_push_kwags = {"repository": repository, "tag": image_tag}
+    docker_push_kwargs = {"repository": repository, "tag": image_tag}
     if username is not None and password is not None:
-        docker_push_kwags["auth_config"] = {"username": username, "password": password}
+        docker_push_kwargs["auth_config"] = {"username": username, "password": password}
     try:
-        docker_client.images.push(**docker_push_kwags, stream=True, decode=True)
+        docker_client.images.push(**docker_push_kwargs, stream=True, decode=True)
     except docker.errors.APIError as error:
         raise Exception(f"Failed to push docker image {image_tag}: {error}")
 

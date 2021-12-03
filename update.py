@@ -5,6 +5,7 @@ from typing import Optional
 import typer
 
 from deploy import deploy
+from utils import console
 from utils.utils import Stage
 
 
@@ -31,8 +32,7 @@ def update(
         config_json=config_json,
         stage=stage
     )
-
-    print("### Deployment (Update) Complete! ###")
+    console.print("[bold green]Deployment (Update) Complete!")
 
 
 if __name__ == "__main__":

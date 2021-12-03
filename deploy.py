@@ -16,7 +16,7 @@ from utils import (
     create_ecr_repository_if_not_exists,
     console
 )
-from utils.utils import Stage
+from utils.utils import Stage, check_output_command
 
 
 def deploy(
@@ -72,7 +72,8 @@ def deploy(
             project_dir=deployable_path,
             region=lambda_config["region"],
         )
-        # print(return_code, stdout, stderr)
+
+        check_output_command(return_code, stdout, stderr)
 
     with console.status("Pushing image to ECR"):
         repository_id, registry_url = create_ecr_repository_if_not_exists(
@@ -91,7 +92,8 @@ def deploy(
             project_dir=deployable_path,
             region=lambda_config["region"],
         )
-        # print(return_code, stdout, stderr)
+        check_output_command(return_code, stdout, stderr)
+
     console.print(f"Image built and pushed [b][{registry_url}][/b]")
 
     with console.status("Deploying to Lambda"):
@@ -113,9 +115,9 @@ def deploy(
             project_dir=deployable_path,
             region=lambda_config["region"],
         )
-        # print(return_code, stdout, stderr)
+        check_output_command(return_code, stdout, stderr)
 
-    print("### Deployment Complete! ###")
+    console.print("[bold green]Deployment Complete!")
 
 
 if __name__ == "__main__":
