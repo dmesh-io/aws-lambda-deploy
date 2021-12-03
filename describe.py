@@ -8,7 +8,6 @@ from botocore.exceptions import ClientError
 from rich.pretty import pprint
 
 from aws_lambda import generate_lambda_resource_names
-
 from utils import get_configuration_value
 from utils.utils import Stage
 
